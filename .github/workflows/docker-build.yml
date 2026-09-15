@@ -1,0 +1,27 @@
+name: Single Container Docker CI
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Build Docker Image
+        run: docker build -t my-app .
+
+      - name: Run Container
+        run: docker run -d -p 8080:80 --name test-container my-app
+
+      - name: Wait for startup
+        run: sleep 3
+
+      - name: Verify Web Service
+        run: curl --fail http://localhost:8080 || exit 1
+
+      - name: Cleanup Container
+        run: docker rm -f test-container
